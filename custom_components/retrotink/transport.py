@@ -24,6 +24,10 @@ _LOGGER = logging.getLogger(__name__)
 
 SERIAL_BAUD = 115200
 HTTP_TIMEOUT = aiohttp.ClientTimeout(total=5)
+# /api/command waits for the RetroTINK's serial reply before answering.
+COMMAND_TIMEOUT = aiohttp.ClientTimeout(total=10)
+# Serial link busy (e.g. file transfer in progress): retry once after this delay.
+BUSY_RETRY_DELAY = 1.0
 
 # Values seen in DonutShop's /api/status "power_state" field.
 POWER_STATES_ON = {"awake", "on", "booting"}
@@ -132,32 +136,53 @@ class DonutShopTransport:
         """Send one RetroTINK serial command."""
         try:
             if not self._use_legacy_cmd:
-                async with self._session.post(
-                    f"{self.base_url}/api/command",
-                    json={"command": command},
-                    timeout=HTTP_TIMEOUT,
-                ) as resp:
-                    if resp.status == 404:
-                        _LOGGER.info(
-                            "%s has no /api/command, falling back to /cmd", self.base_url
-                        )
-                        self._use_legacy_cmd = True
-                    else:
-                        body = await resp.text()
-                        if resp.status >= 400:
-                            raise TransportError(f"HTTP {resp.status}: {body}")
-                        return
+                if await self._send_api_command(command, retry_busy=True):
+                    return
 
             async with self._session.post(
                 f"{self.base_url}/cmd",
                 data=command.encode("utf-8"),
                 headers={"Content-Type": "text/plain"},
-                timeout=HTTP_TIMEOUT,
+                timeout=COMMAND_TIMEOUT,
             ) as resp:
                 if resp.status >= 400:
                     raise TransportError(f"HTTP {resp.status}")
         except (aiohttp.ClientError, asyncio.TimeoutError) as err:
             raise TransportError(f"{self.base_url}: {err}") from err
+
+    async def _send_api_command(self, command: str, retry_busy: bool) -> bool:
+        """POST /api/command. Return False if the endpoint doesn't exist.
+
+        See DonutShop_API.md: 409 = serial link busy, 504 = the command was
+        written but the RetroTINK didn't answer in time.
+        """
+        async with self._session.post(
+            f"{self.base_url}/api/command",
+            json={"command": command},
+            timeout=COMMAND_TIMEOUT,
+        ) as resp:
+            status = resp.status
+            body = await resp.text()
+
+        if status == 404:
+            _LOGGER.info("%s has no /api/command, falling back to /cmd", self.base_url)
+            self._use_legacy_cmd = True
+            return False
+        if status == 409 and retry_busy:
+            _LOGGER.debug("DonutShop serial link busy, retrying %r", command)
+            await asyncio.sleep(BUSY_RETRY_DELAY)
+            return await self._send_api_command(command, retry_busy=False)
+        if status == 504:
+            # The command reached the RetroTINK; it just didn't reply in time
+            # (typical while it is waking up). Not a failure.
+            _LOGGER.warning(
+                "RetroTINK did not answer %r in time (HTTP 504); command was sent",
+                command,
+            )
+            return True
+        if status >= 400:
+            raise TransportError(f"HTTP {status}: {body}")
+        return True
 
     async def _get_json(self, path: str) -> dict[str, Any] | None:
         async with self._session.get(

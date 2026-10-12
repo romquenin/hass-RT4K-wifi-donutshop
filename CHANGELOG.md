@@ -9,6 +9,10 @@
 - Delay between commands no longer blocks a Home Assistant worker thread
 - French translation
 - Existing USB serial entries keep working unchanged
+- Aligned with the published DonutShop API (DonutShop_API.md): 10 s command
+  timeout, one retry when the serial link is busy (HTTP 409), and HTTP 504
+  (RetroTINK didn't reply in time, e.g. while waking) is logged as a warning
+  instead of failing the command
 
 ## Version 1.0.0 (January 2026)
 
