@@ -282,3 +282,7 @@ MIT License - Feel free to modify and distribute as needed.
 ## Support
 
 For issues or feature requests, please open an issue on [this repository](https://github.com/romquenin/hass-RT4K-wifi-donutshop/issues).
+
+---
+
+RetroTINK is a trademark of RetroTINK LLC. This integration is not officially endorsed by or affiliated with RetroTINK LLC.
