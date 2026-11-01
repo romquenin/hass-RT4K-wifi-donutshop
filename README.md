@@ -1,5 +1,9 @@
 # RetroTINK-4K Remote Integration for Home Assistant
 
+[![hacs_badge](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://hacs.xyz/docs/faq/custom_repositories)
+
+> Fork of [sjftech/hass-RT4K](https://github.com/sjftech/hass-RT4K) that adds **Wi-Fi control through a [DonutShop](https://github.com/svirant/DonutShop) dongle**, while keeping the original USB serial mode. Existing USB setups keep working unchanged.
+
 A custom Home Assistant integration for controlling RetroTINK-4K devices (Pro and CE models), either:
 
 - **over Wi-Fi through a [DonutShop](https://github.com/svirant/DonutShop) dongle** (Arduino Nano ESP32 plugged into the RT4K), or
@@ -31,6 +35,16 @@ data:
   command: "SVS NEW INPUT=1"
 ```
 
+### Useful raw commands (DonutShop / RT4K firmware 1.75+)
+
+| Command | Effect |
+|---|---|
+| `input 20` | Switch input (0 HDMI, 7 RCA YPbPr, 12 SCART RGBS, 13 SCART RGsB, 20 HD15 RGBHV, 21 HD15 RGBS, 23 HD15 YPbPr…) |
+| `prof load PS2.rt4` | Load a profile from the SD card, path relative to `profile/` |
+| `SVS NEW INPUT=3` | Load SVS profile `S3_*.rt4` |
+
+Tip: when combining both, load the profile first, then switch the input.
+
 ## USB serial mode
 
 ## Features
@@ -45,14 +59,16 @@ data:
 
 ## Installation
 
-### HACS
+### HACS (custom repository)
 
-1. Open HACS in Home Assistant
-2. Go to Integrations
-3. Click the three dots in the top right and select "Custom repositories"
-4. Add this repository URL and select "Integration" as the category
-5. Click "Install"
-6. Restart Home Assistant
+1. Open **HACS** in Home Assistant.
+2. Click the **⋮** menu (top right) → **Custom repositories**.
+3. Repository: `https://github.com/romquenin/hass-RT4K-wifi-donutshop` — Type: **Integration** → **Add**.
+4. Search for **RetroTINK-4K Remote** in HACS and click **Download**.
+5. Restart Home Assistant.
+6. **Settings → Devices & Services → Add Integration → RetroTINK-4K**.
+
+> This fork uses the same `retrotink` domain as the original integration. If you already installed `sjftech/hass-RT4K`, remove it from HACS first; your existing USB entries keep working after switching.
 
 ### Manual Installation
 
@@ -246,6 +262,10 @@ logger:
 
 ## Credits
 
+- Original USB serial integration: [sjftech/hass-RT4K](https://github.com/sjftech/hass-RT4K).
+- DonutShop Wi-Fi support: [@romquenin](https://github.com/romquenin).
+- [DonutShop](https://github.com/svirant/DonutShop) by svirant.
+
 Created for use with RetroTINK-4K Pro and CE devices manufactured by RetroTINK LLC.
 
 **Special thanks to Mike Chi** (@retrotink2) for creating the RetroTINK line of products and making the world of retro gaming better for everyone.
@@ -261,4 +281,4 @@ MIT License - Feel free to modify and distribute as needed.
 
 ## Support
 
-For issues or feature requests, please open an issue on the GitHub repository.
+For issues or feature requests, please open an issue on [this repository](https://github.com/romquenin/hass-RT4K-wifi-donutshop/issues).

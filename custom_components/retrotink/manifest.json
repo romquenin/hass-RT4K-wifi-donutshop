@@ -1,11 +1,14 @@
 {
   "domain": "retrotink",
   "name": "RetroTINK-4K Remote (USB or DonutShop Wi-Fi)",
-  "codeowners": [],
+  "codeowners": [
+    "@romquenin"
+  ],
   "config_flow": true,
-  "documentation": "https://github.com/sjftech/hass-RT4K",
+  "documentation": "https://github.com/romquenin/hass-RT4K-wifi-donutshop",
   "integration_type": "device",
   "iot_class": "local_polling",
+  "issue_tracker": "https://github.com/romquenin/hass-RT4K-wifi-donutshop/issues",
   "requirements": [
     "pyserial==3.5"
   ],
