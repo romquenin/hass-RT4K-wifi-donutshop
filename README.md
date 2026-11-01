@@ -9,6 +9,8 @@ A custom Home Assistant integration for controlling RetroTINK-4K devices (Pro an
 - **over Wi-Fi through a [DonutShop](https://github.com/svirant/DonutShop) dongle** (Arduino Nano ESP32 plugged into the RT4K), or
 - **over a USB serial cable** plugged into the Home Assistant machine.
 
+> 🎛️ **Remote control card:** pair this integration with the [RetroTINK Remote Control card](https://github.com/romquenin/retrotink-remote-control), a Lovelace card with every RT4K remote button and a panel to power your consoles on and off.
+
 ## DonutShop (Wi-Fi) mode
 
 No cable between Home Assistant and the RetroTINK: Home Assistant can live anywhere on your network.
